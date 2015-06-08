@@ -16,3 +16,4 @@ React.render(
   , document.body
 );
 
+module.exports = MarkdownView;

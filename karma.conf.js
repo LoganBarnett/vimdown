@@ -6,6 +6,7 @@ module.exports = (config) => {
     , frameworks: ['browserify', 'jasmine']
     , files: [
         '**/*.spec.jsx'
+      , '../../utils/test/function_bind_polyfill.js'
       //, '**/*.spec.js'
     ]
     , exclude: [
