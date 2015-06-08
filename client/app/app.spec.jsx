@@ -7,9 +7,8 @@ require('react/addons');
 
 describe('app', () => {
   it('renders a markdown element', () => {
-    const renderer = React.addons.TestUtils.createRenderer();
-    renderer.render(<MarkdownView />);
-    const output = renderer.getRenderOutput();
-    expect(output).toEqual(<div>Some stuff</div>);
+    const output = React.addons.TestUtils.renderIntoDocument(<MarkdownView markdown={'**I\'ma header!**'}/>);
+    const node = React.findDOMNode(output);
+    expect(node.innerHTML.trim()).toEqual('<p><strong>I\'ma header!</strong></p>');
   });
 });

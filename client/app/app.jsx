@@ -2,11 +2,13 @@
 
 //const React = require('react');
 import React from 'react';
+import marked from 'marked';
 
 const MarkdownView = React.createClass({
-  render: () => {
+  render: function() {
+    const markdown = marked(this.props.markdown || 'asdf');
     return (
-      <div>Some stuff</div>
+      <div key="markdown-view" dangerouslySetInnerHTML={ {__html: markdown} }></div>
     );
   }
 });
