@@ -1,0 +1,22 @@
+{
+  "name": "vimdown",
+  "version": "1.0.0",
+  "authors": [
+    "Logan Barnett <logustus@gmail.com>"
+  ],
+  "moduleType": [
+    "es6"
+  ],
+  "keywords": [
+    "vim",
+    "markdown"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

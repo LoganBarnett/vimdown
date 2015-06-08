@@ -1,0 +1,9 @@
+.idea/
+.tmp/
+dist/
+node_modules/
+bower_components/
+client/bower_components/
+client/node_modules/
+# until I've lifted all I want out of this
+gulpfile.other.js
