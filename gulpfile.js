@@ -26,11 +26,13 @@ gulp.task('serve', ['build', 'watch-client-test'], () => {
   //gulp.watch('server/')
 });
 
-gulp.task('watch-client-test', (done) => {
-  karma.start({
-    configFile: __dirname + '/karma.conf.js'
-    , singleRun: false
-  }, done);
+gulp.task('watch-client-test', () => {
+  //gulp.watch('./client/app/**/*.jsx', () => {
+    karma.start({
+      configFile:  __dirname + '/karma.conf.js'
+      , singleRun: false
+    });
+  //});
 });
 
 gulp.task('test:client', (done) => {
@@ -54,6 +56,7 @@ gulp.task('copy-static', () => {
 });
 
 const buildJs = (watching) => {
+  gutil.log('building... (watching=' + watching + ')');
   const browserifyOpts = {
       entries: ['./client/app/app.jsx']
     , extensions: ['.jsx']
@@ -72,8 +75,10 @@ const buildJs = (watching) => {
   bundler.on('log', gutil.log);
   //bundler.on('error', gutil.error);
   bundler.on('update', () => {
-    gutil.log('updating...');
-    buildJs();
+    // TODO: whaaaa? backtick not working in this gulp file.
+    //gutil.log(`updating... (watching=${watching})`);
+    gutil.log('updating... (watching=' + watching + ')');
+    buildJs(true);
   });
   return bundler
     .transform(babelify)
@@ -92,6 +97,6 @@ const buildJs = (watching) => {
     ;
 };
 
-gulp.task('build-app', buildJs);
+gulp.task('build-app', _.partial(buildJs, true));
 
 gulp.task('build', ['build-app', 'copy-static']);
