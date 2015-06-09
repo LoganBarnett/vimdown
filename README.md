@@ -14,5 +14,8 @@ TODO:
 * Examples of themes: https://github.com/securingsincity/react-ace
 [ ] Proper styling.
 [ ] Server can load and save to the fs.
+[ ] Server reloads on change
+[ ] Server reloads also cause UI reloads
+[ ] Server tests
 [ ] Browser-sync for dev-mode.
 [ ] Scrolling is followed on both sides.
