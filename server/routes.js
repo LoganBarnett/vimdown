@@ -11,7 +11,7 @@ var path = require('path');
 module.exports = function(app) {
 
   // Insert routes below
-  //app.use('/api/v1/generation_sets', require('./api/v1/generation_sets'));
+  app.use('/api/v1/notes', require('./api/v1/notes'));
 
   app.use('/', express.static(__dirname + '/../dist/'));
   //app.use('/bower_comonents', express.static(__dirname + "/../client/bower_components"));

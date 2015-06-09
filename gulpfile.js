@@ -17,7 +17,7 @@ const watchify = require('watchify');
 const _ = require('lodash');
 const gutil = require('gulp-util');
 const karma = require('karma').server;
-//const jasmine = require('gulp-jasmine');
+const jasmine = require('gulp-jasmine');
 const notify = require('gulp-notify');
 const nodemon = require('nodemon');
 
@@ -30,11 +30,15 @@ const handleError = (task) => {
     // what logs exactly?...
     notify.onError(task + ' failed, check logs...')(err);
   }
-}
+};
 
 gulp.task('serve', ['host:main', 'build', 'watch-client-test'], () => {
   //require('./server/app');
   //gulp.watch('server/')
+});
+
+gulp.task('watch-server-test', () => {
+  gulp.watch('./server/**/*.spec.js', ['test:server']);
 });
 
 gulp.task('watch-client-test', () => {
@@ -54,8 +58,8 @@ gulp.task('test:client', (done) => {
 });
 
 gulp.task('test:server', () => {
-  return gulp.src('server/**/*/spec.js')
-    .pipe(jasmine())
+  return gulp.src('./server/**/*.spec.js')
+    .pipe(jasmine({includeStackTrace: true}))
   ;
 });
 
@@ -119,7 +123,7 @@ gulp.task('build-app', _.partial(buildJs, true));
 gulp.task('build', ['build-app', 'copy-static']);
 
 
-gulp.task('host:main', () => {
+gulp.task('host:main', ['watch-server-test'], () => {
   nodemon({
       script: './server/app.js'
     , ext: 'html js'
@@ -127,7 +131,8 @@ gulp.task('host:main', () => {
     , stdout: false
     , stderr: false
     //, nodeArgs: ['--debug']
-    , watch: 'server'
+    , nodeArgs: ['--harmony']
+    , watch: 'server/**/!(*.spec).js'
   });
 
   nodemon.on('restart', (files) => {
