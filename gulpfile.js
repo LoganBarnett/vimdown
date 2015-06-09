@@ -17,12 +17,23 @@ const watchify = require('watchify');
 const _ = require('lodash');
 const gutil = require('gulp-util');
 const karma = require('karma').server;
+//const jasmine = require('gulp-jasmine');
+const notify = require('gulp-notify');
+const nodemon = require('nodemon');
 
 const CLIENT_DEST = 'dist';
 const TEMP = '.tmp';
 
-gulp.task('serve', ['build', 'watch-client-test'], () => {
-  require('./server/app');
+const handleError = (task) => {
+  return (err) => {
+    gutil.log(gutil.colors.red(err));
+    // what logs exactly?...
+    notify.onError(task + ' failed, check logs...')(err);
+  }
+}
+
+gulp.task('serve', ['host:main', 'build', 'watch-client-test'], () => {
+  //require('./server/app');
   //gulp.watch('server/')
 });
 
@@ -40,6 +51,12 @@ gulp.task('test:client', (done) => {
       configFile: __dirname + '/karma.conf.js'
     , singleRun: true
   }, done);
+});
+
+gulp.task('test:server', () => {
+  return gulp.src('server/**/*/spec.js')
+    .pipe(jasmine())
+  ;
 });
 
 gulp.task('clean', () => {
@@ -100,3 +117,36 @@ const buildJs = (watching) => {
 gulp.task('build-app', _.partial(buildJs, true));
 
 gulp.task('build', ['build-app', 'copy-static']);
+
+
+gulp.task('host:main', () => {
+  nodemon({
+      script: './server/app.js'
+    , ext: 'html js'
+    , env: {'NODE_ENV': 'production'}
+    , stdout: false
+    , stderr: false
+    //, nodeArgs: ['--debug']
+    , watch: 'server'
+  });
+
+  nodemon.on('restart', (files) => {
+    gutil.log('[server] App restarted due to', gutil.colors.cyan(files));
+  }).on('stdout', (raw) => {
+    const message = raw.toString('utf8');
+    gutil.log('[server]', gutil.colors.green(message));
+    if(message.indexOf('[server] Restart complete.') != -1) {
+      //browserSync.reload();
+    }
+  }).on('stderr', (err) => {
+    const message = err.toString('utf8');
+    // For some reason debugger attachment gets logged on 'stderr', so we catch it here...
+    //if(message.indexOf('debugger listening on port' == 0)) {
+    //  gutil.log('[server]', gutil.colors.green(message));
+    //}
+    //else {
+      handleError('[server]')(message);
+    //}
+  })
+  ;
+});

@@ -1,8 +1,7 @@
+'use strict';
 /**
  * Main application file
  */
-
-'use strict';
 
 //var mongoose = require('mongoose');
 // Set default node environment to development
