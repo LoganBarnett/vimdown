@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-    ip: '0.0.0.0'
+    ip: '127.0.0.1'
   , port: '11111'
   , root: 'dist'
 };
