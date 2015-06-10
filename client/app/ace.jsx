@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import ace from 'ace';
+//import ace from 'ace';
 
 const Ace = React.createClass({
   render: function() {

@@ -5,16 +5,16 @@ module.exports = (config) => {
     basePath: './client/app'
     , frameworks: ['browserify', 'jasmine']
     , files: [
-        '**/*.spec.jsx'
-      , '../../utils/test/function_bind_polyfill.js'
-      , '**/*.spec.js'
+        '../../utils/test/function_bind_polyfill.js'
+      , '**/*.jsx'
+      , '**/*.js'
     ]
     , exclude: [
 
     ]
     , preprocessors: {
-        '**/*.spec.jsx': ['browserify']
-      , '**/*.spec.js': ['browserify']
+        '**/*.jsx': ['browserify']
+      , '**/*.js': ['browserify']
     }
     , browserify: {
         debug: true

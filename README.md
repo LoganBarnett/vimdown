@@ -9,7 +9,7 @@ TODO:
 - [ ] Find out why watchify only kicks off a few times and then stops. Promising leads:
     - https://github.com/substack/watchify/issues/216
     - https://github.com/strongloop/fsevents/issues/63
-- [ ] Tests need to fire even if impl files were changed.
+- [X] Tests need to fire even if impl files were changed.
 - [ ] Dark colors. Please use dark colors.
     - Examples of themes: https://github.com/securingsincity/react-ace
 - [ ] Proper styling.

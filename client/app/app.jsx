@@ -37,7 +37,6 @@ const app = {
   }
   , onChange: (newText) => {
     if(!reacting) {
-      console.log('text changed', newText);
       text = newText;
       reacting = true;
       app.render();
@@ -46,7 +45,6 @@ const app = {
   }
   , render: () => {
     const fileListTag = app.getFileListTag();
-    console.log('file list', fileListTag);
     React.render(
       <div>
         <div className="panel">
