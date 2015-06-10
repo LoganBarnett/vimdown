@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-const FileBrowserEntry = React.createClass({
+const FileListEntry = React.createClass({
   render: function() {
     return (
       <div>{this.props.fileName }</div>
@@ -10,5 +10,5 @@ const FileBrowserEntry = React.createClass({
   }
 });
 
-module.exports = FileBrowserEntry;
+module.exports = FileListEntry;
 

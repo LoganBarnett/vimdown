@@ -80,7 +80,7 @@ const buildJs = (watching) => {
   gutil.log('building... (watching=' + watching + ')');
   const browserifyOpts = {
       entries: ['./client/app/app.jsx']
-    , extensions: ['.jsx']
+    , extensions: ['.jsx', '.js']
     , debug: true
   };
   const watchifyOpts = _.assign({}, watchify.args, browserifyOpts);

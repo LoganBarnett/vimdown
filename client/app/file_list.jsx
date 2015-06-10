@@ -1,12 +1,12 @@
 'use strict';
 
 import React from 'react';
-import FileBrowserEntry from './file_browser_entry';
+import FileListEntry from './file_list_entry';
 import _ from 'lodash';
 
-const FileBrowser = React.createClass({
+const FileList = React.createClass({
   render: function() {
-    const entryToLi = (f) => <li key={f}><FileBrowserEntry fileName={f}/> </li>;
+    const entryToLi = (f) => <li key={f}><FileListEntry fileName={f}/> </li>;
     let contains;
     // TODO: Should move to a string helper
     // perhaps a String.prototype.regexMatch(string, regex);
@@ -28,4 +28,4 @@ const FileBrowser = React.createClass({
   }
 });
 
-module.exports = FileBrowser;
+module.exports = FileList;

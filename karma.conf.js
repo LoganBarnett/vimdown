@@ -7,18 +7,18 @@ module.exports = (config) => {
     , files: [
         '**/*.spec.jsx'
       , '../../utils/test/function_bind_polyfill.js'
-      //, '**/*.spec.js'
+      , '**/*.spec.js'
     ]
     , exclude: [
 
     ]
     , preprocessors: {
         '**/*.spec.jsx': ['browserify']
-      //, '**/*.spec.js': ['browserify']
+      , '**/*.spec.js': ['browserify']
     }
     , browserify: {
         debug: true
-      , extensions: ['.jsx']
+      , extensions: ['.jsx', '.js']
       , configure: (bundle) => {
         bundle.once('prebundle', () => {
           bundle.transform('babelify');
