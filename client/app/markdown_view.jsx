@@ -13,6 +13,7 @@ const MarkdownView = React.createClass({
   }
 });
 
+// TODO: Do we still need this?
 React.render(
     <MarkdownView />
   , document.body
