@@ -5,8 +5,15 @@ import FileListEntry from './file_list_entry';
 import _ from 'lodash';
 
 const FileList = React.createClass({
-  render: function() {
-    const entryToLi = (f) => <li key={f}><FileListEntry fileName={f}/> </li>;
+  handleFileSelectClick: function(fileName) {
+    if(this.props.onSelect) {
+      this.props.onSelect(fileName);
+    }
+  }
+  , entryToLi: function(f) {
+    return <li key={f}><a onClick={_.partial(this.handleFileSelectClick, f)} href={'#/' + f}><FileListEntry fileName={f}/></a></li>;
+  }
+  , render: function() {
     let contains;
     // TODO: Should move to a string helper
     // perhaps a String.prototype.regexMatch(string, regex);
@@ -17,7 +24,7 @@ const FileList = React.createClass({
     else {
       contains = () => true;
     }
-    const entries = _.map(_.filter(this.props.fileList, contains), entryToLi);
+    const entries = _.map(_.filter(this.props.fileList, contains), this.entryToLi);
     return (
       <div>
         <ul>

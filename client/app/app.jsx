@@ -50,7 +50,7 @@ const app = {
         <div className="panel">
           {fileListTag}
         </div>
-        <div className={'panel'}>
+        <div className="panel panel-wide">
           <AceEditor
             mode="markdown"
             name="ace-editor"
@@ -59,7 +59,7 @@ const app = {
             onChange={app.onChange}
             />
         </div>
-        <div className={'panel'}>
+        <div className="panel panel-wide">
           <MarkdownView className={'panel'} markdown={text}/>
         </div>
       </div>

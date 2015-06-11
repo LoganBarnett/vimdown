@@ -24,6 +24,26 @@ describe('FileList', () => {
     expect(results.length).toEqual(2);
   });
 
+  it('allows file selection', () => {
+    const fileList = ['foo', 'bar', 'foobar'];
+    const fileSelected = jasmine.createSpy('fileSelected');
+    const element = <FileList fileList={fileList} onSelect={fileSelected} />;
+    const markup = TestUtils.renderIntoDocument(element);
+    const links = TestUtils.scryRenderedDOMComponentsWithTag(markup, 'a');
+    expect(fileSelected).not.toHaveBeenCalled();
+    TestUtils.Simulate.click(links[0]);
+    expect(fileSelected).toHaveBeenCalledWith('foo');
+  });
+
+  xit('marks the selected file', () => {
+    const fileList = ['foo', 'bar', 'foobar'];
+    const fileSelected = jasmine.createSpy('fileSelected');
+    const element = <FileList fileList={fileList} onSelect={fileSelected} />;
+    const markup = TestUtils.renderIntoDocument(element);
+    const links = TestUtils.scryRenderedDOMComponentsWithClass(markup, '.selected');
+    expect(links.length).toEqual(1);
+  });
+
   // hmmm then it's FileBrowserOrError, right?
   // TODO: Break this out into FileListLoadError
   it('displays errors getting files');
