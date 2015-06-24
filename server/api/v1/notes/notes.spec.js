@@ -4,6 +4,8 @@ var model = require('./notes.model');
 const fs = require('fs');
 const q = require('q');
 const _ = require('lodash');
+//import mori from 'mori';
+const mori = require('mori');
 
 const delayedPromise = (callback) => {
   const deferred = q.defer();
@@ -11,7 +13,25 @@ const delayedPromise = (callback) => {
   return deferred.promise;
 };
 
-describe('Generation Sets', function() {
+const expectPromiseResolve = (promise, done, expected) => {
+  promise.then((result) => {
+    expect(result).toEqual(expected);
+    done();
+  }, (error) => {
+    done.fail('Expected success resolving promise but got failure instead', error);
+  });
+};
+
+const expectPromiseReject = (promise, done, expected) => {
+  promise.then((result) => {
+    done.fail('Expected error resolving promise but got success instead', result);
+  }, (error) => {
+    expect(error).toEqual(expected);
+    done();
+  });
+};
+
+describe('Notes', function() {
   describe('model', function() {
 
     it('gets a list of notes', function(done) {
@@ -41,6 +61,20 @@ describe('Generation Sets', function() {
         expect(error).toEqual('Dir does not exist');
         done();
       })
+    });
+
+    it('gets data from a note', (done) => {
+      spyOn(fs, 'readFile').and.callFake((path, options, cb) => {
+        delayedPromise(mori.partial(cb, null, '<foo></foo>'));
+      });
+      expectPromiseResolve(model.getFileData('foo.xml'), done, '<foo></foo>');
+    });
+
+    it('rejects getting note data on an error', (done) => {
+      spyOn(fs, 'readFile').and.callFake((path, options, cb) => {
+        delayedPromise(mori.partial(cb, 'an error', null));
+      });
+      expectPromiseReject(model.getFileData('foo.xml'), done, 'an error');
     });
 
     it('creates new notes', (done) => {
@@ -121,5 +155,13 @@ describe('Generation Sets', function() {
       });
     });
 
+  });
+
+  // TODO: Get a pattern for controller tests
+  xdescribe('controller', () => {
+    it('gets file data for a file', (done) => {
+      const controller = require('./notes.controller');
+      //controller.get();
+    });
   });
 });

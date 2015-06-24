@@ -38,4 +38,37 @@ describe('FileBrowser', () => {
       done();
     });
   });
+
+  it('loads an individual file', (done) => {
+    spyOn(axios, 'get').and.callFake(() => {
+      const deferred = Q.defer();
+      setTimeout(() => deferred.resolve({data: '<foo></foo>'}));
+      return deferred.promise;
+    });
+
+    FileBrowser.getFileData('foo.xml').then((fileData) => {
+      expect(fileData).toEqual('<foo></foo>');
+      done();
+    })
+    .catch((error) => {
+      done.fail('expected success getting file data but got failure instead', error);
+    });
+  });
+
+  it('handles errors loading individual files', (done) => {
+    spyOn(axios, 'get').and.callFake(() => {
+      const deferred = Q.defer();
+      setTimeout(() => deferred.reject({status: 500, data: 'it blowed up'}));
+      return deferred.promise;
+    });
+
+    FileBrowser.getFileData('foo.xml').then((fileData) => {
+      done.fail('expected error getting file data but got success instead', fileData);
+    })
+    .catch((error) => {
+      expect(error.status).toEqual(500);
+      expect(error.data).toEqual('it blowed up');
+      done();
+    });
+  });
 });

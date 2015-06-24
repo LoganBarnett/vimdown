@@ -11,6 +11,7 @@
     "markdown"
   ],
   "author": "Logan Barnett",
+  "repository": "https://github.com/LoganBarnett/vimdown",
   "license": "ISC",
   "devDependencies": {
     "babelify": "^6.1.2",
@@ -21,12 +22,14 @@
     "gulp-clean": "^0.3.1",
     "gulp-concat": "^2.5.2",
     "gulp-jasmine": "^2.0.1",
+    "gulp-mocha": "^2.1.1",
     "gulp-notify": "^2.2.0",
     "gulp-sourcemaps": "^1.5.2",
     "gulp-uglify": "^1.2.0",
     "gulp-util": "^3.0.5",
     "jasmine": "^2.3.1",
     "jasmine-core": "^2.3.4",
+    "jasmine-es6": "0.0.11",
     "karma": "^0.12.36",
     "karma-browserify": "^4.2.1",
     "karma-jasmine": "^0.3.5",
@@ -53,7 +56,9 @@
     "marked": "^0.3.3",
     "method-override": "^2.3.3",
     "morgan": "^1.5.3",
+    "mori": "^0.3.2",
     "path": "^0.11.14",
+    "react": "^0.13.3",
     "react-ace": "^2.0.0",
     "serve-favicon": "^2.2.1"
   }

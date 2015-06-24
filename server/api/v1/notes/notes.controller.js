@@ -16,6 +16,17 @@ controller.index = function(req, res) {
   return res;
 };
 
+controller.get = function(req, res) {
+  console.log('getting file data for ', NOTE_DIR + '/' + req.params.fileName);
+  model.getFileData(NOTE_DIR + '/' + req.params.fileName).then(function(fileData) {
+    res.json(fileData);
+  }, function(error) {
+    console.error(error);
+    res.sendStatus(500);
+  });
+  return res;
+};
+
 controller.create = function(req, res) {
   model.create(NOTE_DIR + '/' + req.query.fileName, req.body).then(function(result) {
     res.json(result);

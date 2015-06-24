@@ -6,15 +6,15 @@ module.exports = (config) => {
     , frameworks: ['browserify', 'jasmine']
     , files: [
         '../../utils/test/function_bind_polyfill.js'
-      , '**/*.jsx'
-      , '**/*.js'
+      , '**/*.spec.jsx'
+      , '**/*.spec.js'
     ]
     , exclude: [
 
     ]
     , preprocessors: {
-        '**/*.jsx': ['browserify']
-      , '**/*.js': ['browserify']
+        '**/*.spec.jsx': ['browserify']
+      , '**/*.spec.js': ['browserify']
     }
     , browserify: {
         debug: true

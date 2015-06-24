@@ -6,10 +6,11 @@ const FileListEntry = require('./file_list_entry');
 const React = require('react');
 const TestUtils = React.addons.TestUtils;
 require('react/addons');
+import mori from 'mori'; // TODO: Is there a shorthand for import?
 
 describe('FileList', () => {
   it('shows a list of files', () => {
-    const fileList = ['foo', 'bar'];
+    const fileList = mori.vector({fileName: 'foo'}, {fileName: 'bar'});
     const element = <FileList fileList={fileList} />;
     const markup = TestUtils.renderIntoDocument(element);
     const results = TestUtils.scryRenderedComponentsWithType(markup, FileListEntry);
@@ -17,7 +18,7 @@ describe('FileList', () => {
   });
 
   it('searches for files', () => {
-    const fileList = ['foo', 'bar', 'foobar'];
+    const fileList = mori.vector({fileName: 'foo'}, {fileName: 'bar'}, {fileName: 'foobar'});
     const element = <FileList fileList={fileList} filter={'f'}/>;
     const markup = TestUtils.renderIntoDocument(element);
     const results = TestUtils.scryRenderedComponentsWithType(markup, FileListEntry);
@@ -25,26 +26,24 @@ describe('FileList', () => {
   });
 
   it('allows file selection', () => {
-    const fileList = ['foo', 'bar', 'foobar'];
+    const fileList = mori.vector({fileName: 'foo'}, {fileName: 'bar'}, {fileName: 'foobar'});
     const fileSelected = jasmine.createSpy('fileSelected');
     const element = <FileList fileList={fileList} onSelect={fileSelected} />;
     const markup = TestUtils.renderIntoDocument(element);
     const links = TestUtils.scryRenderedDOMComponentsWithTag(markup, 'a');
     expect(fileSelected).not.toHaveBeenCalled();
-    TestUtils.Simulate.click(links[0]);
+    TestUtils.Simulate.click(links[0].getDOMNode());
     expect(fileSelected).toHaveBeenCalledWith('foo');
   });
 
-  xit('marks the selected file', () => {
-    const fileList = ['foo', 'bar', 'foobar'];
-    const fileSelected = jasmine.createSpy('fileSelected');
-    const element = <FileList fileList={fileList} onSelect={fileSelected} />;
+  it('marks the selected file', () => {
+    const fileList = mori.vector({fileName: 'foo'}, {fileName: 'bar', selected: true}, {fileName: 'foobar'});
+    const element = <FileList fileList={fileList} selectedFileName={'bar'} />;
     const markup = TestUtils.renderIntoDocument(element);
-    const links = TestUtils.scryRenderedDOMComponentsWithClass(markup, '.selected');
-    expect(links.length).toEqual(1);
+    const entries = TestUtils.scryRenderedComponentsWithType(markup, FileListEntry);
+    const _ = require('lodash');
+    expect(entries[0].props.selected).toBeFalsy();
+    expect(entries[1].props.selected).toBe(true);
+    expect(entries[2].props.selected).toBeFalsy();
   });
-
-  // hmmm then it's FileBrowserOrError, right?
-  // TODO: Break this out into FileListLoadError
-  it('displays errors getting files');
 });

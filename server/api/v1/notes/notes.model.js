@@ -2,6 +2,10 @@
 
 const q = require('q');
 const fs = require('fs');
+const mori = require('mori');
+//import mori from 'mori';
+//import NodeUtils from '../../../node_utils';
+const NodeUtils = require('../../../node_utils');
 
 var Model = {};
 
@@ -16,6 +20,10 @@ Model.getList = function(dir) {
     }
   });
   return deferred.promise;
+};
+
+Model.getFileData = (path) => {
+  return NodeUtils.promisize(mori.partial(fs.readFile, path, {encoding: 'utf-8'}));
 };
 
 Model.create = function(fileName, fileData) {

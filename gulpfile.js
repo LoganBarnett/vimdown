@@ -21,6 +21,9 @@ const jasmine = require('gulp-jasmine');
 const notify = require('gulp-notify');
 const nodemon = require('nodemon');
 
+//import mocha from 'gulp-mocha';
+//import babelRegister from 'babel-core/register';
+
 const CLIENT_DEST = 'dist';
 const TEMP = '.tmp';
 
@@ -32,13 +35,13 @@ const handleError = (task) => {
   }
 };
 
-gulp.task('serve', ['host:main', 'build', 'watch-client-test'], () => {
+gulp.task('serve', ['host:main', 'build-and-watch', 'copy-static', 'watch-client-test'], () => {
   //require('./server/app');
   //gulp.watch('server/')
 });
 
 gulp.task('watch-server-test', () => {
-  gulp.watch('./server/**/*.spec.js', ['test:server']);
+  return gulp.watch('./server/**/*.spec.js', ['test:server']);
 });
 
 gulp.task('watch-client-test', () => {
@@ -59,7 +62,9 @@ gulp.task('test:client', (done) => {
 
 gulp.task('test:server', () => {
   return gulp.src('./server/**/*.spec.js')
+    //.pipe(babel())
     .pipe(jasmine({includeStackTrace: true}))
+    //.pipe(mocha({compilers: {js: babelRegister}}))
   ;
 });
 
@@ -72,7 +77,7 @@ gulp.task('clean', () => {
 gulp.task('copy-static', () => {
   return gulp.src(['client/index.html', 'client/assets/**/*', 'node_modules/babel-core/browser-polyfill.js'])
     .pipe(gulp.dest(CLIENT_DEST))
-    .pipe(reload({stream: true}))
+    //.pipe(reload({stream: true}))
   ;
 });
 
@@ -118,9 +123,13 @@ const buildJs = (watching) => {
     ;
 };
 
-gulp.task('build-app', _.partial(buildJs, true));
+gulp.task('build-once', _.partial(buildJs, false));
+gulp.task('build-and-watch', _.partial(buildJs, true));
 
-gulp.task('build', ['build-app', 'copy-static']);
+gulp.task('build', ['build-once', 'copy-static'], () => {
+  // does this need a callback?
+  gutil.log('Done with build');
+});
 
 
 gulp.task('host:main', ['watch-server-test'], () => {
