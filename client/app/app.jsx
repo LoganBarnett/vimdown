@@ -23,7 +23,7 @@ let fileListError = false;
 
 const app = {
   getFileList: () => {
-    FileBrowser.getList().then((fileList) => {
+    return FileBrowser.getList().then((fileList) => {
       try {
         fileListResults = mori.map(f => {
           return mori.toClj({fileName: f, selected: false});
@@ -79,6 +79,10 @@ const app = {
       reacting = false;
     }
   }
+  , route: (newUrl) => {
+    const fileName = newUrl.substring(newUrl.indexOf('#') + 2); // get past '#/'
+    app.selectFile(fileName);
+  }
   , render: () => {
     const fileListTag = app.getFileListTag();
     React.render(
@@ -107,5 +111,8 @@ app.getFileList();
 
 app.render();
 
-//const editor = brace.edit('ace-editor');
-//aceSession.setWrapLimitRange(80, 80);
+window.onhashchange = (hashUrl) => {
+  app.route(hashUrl.newURL);
+};
+
+module.exports = app;
