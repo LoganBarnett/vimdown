@@ -4,6 +4,7 @@ const React = require('react');
 const MarkdownView = require('./markdown_view');
 const AceEditor = require('react-ace');
 const brace = require('brace');
+import FileSelection from './file_selection';
 import FileList from './file_list';
 import FileListLoadError from './file_list_load_error';
 import FileBrowser from './file_browser';
@@ -13,12 +14,11 @@ import mori from 'mori';
 require('brace/mode/markdown');
 brace.acequire('ace/mode/markdown');
 require('brace/keybinding/vim.js');
-brace.acequire('ace/keybinding/vim', (event) => {
-});
+brace.acequire('ace/keybinding/vim');
 
 let text = '';
 let reacting = false;
-let fileListResults = null;
+let fileListResults = [];
 let fileListError = false;
 
 const app = {
@@ -43,22 +43,9 @@ const app = {
       fileListResults = error;
     });
   }
-  , selectFile: (selectedFileName) => {
-    const setSelected = (selectedFile, file) => {
-      return mori.merge(file, mori.hashMap('selected', file.fileName == selectedFile))
-    };
-    fileListResults = mori.map(mori.partial(setSelected, selectedFileName), fileListResults);
-
-    FileBrowser.getFileData(selectedFileName).then((data) => {
-      text = data;
-      //reacting = true;
-      app.render();
-      //reacting = false;
-    }, (error) => {
-      console.error('error', error);
-      text = 'Error loading file "' + selectedFileName + '":' + error;
-      app.render();
-    });
+  , selectFile: (fileName) => {
+    //fileListResults = FileSelection.selectFile(fileName, fileListResults);
+    //window.location.hash = '#/' + fileName;
   }
   , getFileListTag: function() {
     return fileListError ? <FileListLoadError reason={fileListResults}/> : <FileList fileList={fileListResults} onSelect={this.selectFile}/>;
@@ -81,7 +68,7 @@ const app = {
   }
   , route: (newUrl) => {
     const fileName = newUrl.substring(newUrl.indexOf('#') + 2); // get past '#/'
-    app.selectFile(fileName);
+    fileListResults = FileSelection.selectFile(fileName, fileListResults);
   }
   , render: () => {
     const fileListTag = app.getFileListTag();
@@ -115,4 +102,5 @@ window.onhashchange = (hashUrl) => {
   app.route(hashUrl.newURL);
 };
 
+setTimeout(mori.partial(app.route, window.location.href), 0);
 module.exports = app;
