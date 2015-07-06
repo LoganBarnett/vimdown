@@ -31,7 +31,7 @@ const FileList = React.createClass({
     )(this.props.fileList);
     return (
       <div>
-        <ul>
+        <ul className="list-unstyled">
           {mori.toJs(entries)}
         </ul>
       </div>

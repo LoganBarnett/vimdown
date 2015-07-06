@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "bootstrap": "^3.3.5",
     "react": "^0.13.3"
   },
   "name": "vimdown-client",
@@ -10,5 +11,8 @@
   },
   "author": "Logan Barnett",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "bootstrap-sass": "^3.3.5"
+  }
 }

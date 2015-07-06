@@ -18,14 +18,13 @@ brace.acequire('ace/keybinding/vim');
 
 let text = '';
 let reacting = false;
-let fileListResults = [];
 let fileListError = false;
 
 const app = {
   getFileList: () => {
     return FileBrowser.getList().then((fileList) => {
       try {
-        fileListResults = mori.map(f => {
+        app.fileListResults = mori.map(f => {
           return mori.toClj({fileName: f, selected: false});
         }, fileList.data);
 
@@ -40,18 +39,41 @@ const app = {
     })
     .catch((error) => {
       fileListError = true;
-      fileListResults = error;
+      app.fileListResults = error;
     });
   }
-  , selectFile: (fileName) => {
-    //fileListResults = FileSelection.selectFile(fileName, fileListResults);
-    //window.location.hash = '#/' + fileName;
+  , selectFile: (applyUrl, fileName) => {
+    app.fileListResults = FileSelection.selectFile(fileName, app.fileListResults);
+
+    app.loadFile(fileName);
+    if(applyUrl) {
+      window.location.hash = '#/' + fileName;
+    }
+  }
+  , loadFile: (fileName) => {
+    FileBrowser.getFileData(fileName).then((data) => {
+      text = data;
+      reacting = true;
+      app.render();
+      reacting = false;
+    }, (error) => {
+      console.error('error', error);
+      text = 'Error loading file "' + fileName + '":' + error;
+      app.render();
+    });
   }
   , getFileListTag: function() {
-    return fileListError ? <FileListLoadError reason={fileListResults}/> : <FileList fileList={fileListResults} onSelect={this.selectFile}/>;
+    return fileListError ? <FileListLoadError reason={app.fileListResults}/> : <FileList fileList={app.fileListResults} onSelect={mori.partial(this.selectFile, true)}/>;
   }
   , onLoad: (editor) => {
+    // this one doesn't work
+    //editor.setOption({maxLines: Infinity});
+    // use this form instead
+    editor.setOption('maxLines', Infinity);
     editor.setKeyboardHandler('ace/keyboard/vim');
+    // need to resize when getting new content or setting something like max-lines
+    // TODO: Might need to have a resize get called when text changes
+    editor.resize();
     const aceSession = editor.getSession();
     aceSession.setUseWrapMode('free');
     const vim = window.ace.define.modules['ace/keyboard/vim'].Vim;
@@ -68,32 +90,63 @@ const app = {
   }
   , route: (newUrl) => {
     const fileName = newUrl.substring(newUrl.indexOf('#') + 2); // get past '#/'
-    fileListResults = FileSelection.selectFile(fileName, fileListResults);
+    app.selectFile(false, fileName);
   }
   , render: () => {
     const fileListTag = app.getFileListTag();
     React.render(
-      <div>
-        <div className="panel">
-          {fileListTag}
-        </div>
-        <div className="panel panel-wide">
-          <AceEditor
-            mode="markdown"
-            name="ace-editor"
-            value={text}
-            onLoad={app.onLoad}
-            onChange={app.onChange}
-            />
-        </div>
-        <div className="panel panel-wide">
-          <MarkdownView className={'panel'} markdown={text}/>
+      <div className="container-fluid">
+        <div className="row">
+          <div className="col-sm-2">
+            <div className="row vertical-window">
+              <p className="col-sm-12 flex-window-title window-title-bar bg-info">
+                <strong>Notes</strong>
+              </p>
+              <div className="inner-window-scrolling-content">
+                <div className="file-list col-sm-12">
+                  {fileListTag}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-sm-10 vertical-window">
+            <div className="row inner-window-scrolling-content">
+              <div className="inner-window col-sm-6 remove-horizontal-padding">
+                <div className="row">
+                  <p className="col-sm-12 bg-primary window-title-bar">
+                    Editor
+                  </p>
+                  <div className="text-editor">
+                    <AceEditor
+                      mode="markdown"
+                      name="ace-editor"
+                      value={text}
+                      onLoad={app.onLoad}
+                      onChange={app.onChange}
+                      width="100%"
+                      />
+                  </div>
+                </div>
+              </div>
+              <div className="inner-window col-sm-6 remove-horizontal-padding">
+                <div className="row">
+                  <p className="col-sm-12 window-title-bar bg-success">
+                    Markdown Preview
+                  </p>
+                  <div className="col-sm-12">
+                    <MarkdownView className={'panel'} markdown={text}/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       , document.body
     );
   }
 };
+app.fileListResults = [];
 app.getFileList();
 
 app.render();

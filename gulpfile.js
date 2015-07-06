@@ -20,6 +20,7 @@ const karma = require('karma').server;
 const jasmine = require('gulp-jasmine');
 const notify = require('gulp-notify');
 const nodemon = require('nodemon');
+const sass = require('gulp-sass');
 
 //import mocha from 'gulp-mocha';
 //import babelRegister from 'babel-core/register';
@@ -35,7 +36,7 @@ const handleError = (task) => {
   }
 };
 
-gulp.task('serve', ['host:main', 'build-and-watch', 'copy-static', 'watch-client-test'], () => {
+gulp.task('serve', ['host:main', 'styles', 'build-and-watch', 'copy-static', 'watch-client-test', 'styles:watch'], () => {
   //require('./server/app');
   //gulp.watch('server/')
 });
@@ -74,6 +75,20 @@ gulp.task('clean', () => {
   ;
 });
 
+gulp.task('styles', () => {
+  return gulp.src('./client/sass/**/*.scss')
+    .pipe(sass({
+        outputStyle: 'nested'
+      , includePaths: ['./client/node_modules/bootstrap-sass/assets/stylesheets']
+    }).on('error', sass.logError))
+    .pipe(gulp.dest(CLIENT_DEST + '/css'))
+  ;
+});
+
+gulp.task('styles:watch', () => {
+  return gulp.watch('./client/sass/**/*.scss', ['styles']);
+});
+
 gulp.task('copy-static', () => {
   return gulp.src(['client/index.html', 'client/assets/**/*', 'node_modules/babel-core/browser-polyfill.js'])
     .pipe(gulp.dest(CLIENT_DEST))
@@ -87,6 +102,7 @@ const buildJs = (watching) => {
       entries: ['./client/app/app.jsx']
     , extensions: ['.jsx', '.js']
     , debug: true
+    // TODO: Add watch: true and keepAlive: true
   };
   const watchifyOpts = _.assign({}, watchify.args, browserifyOpts);
 

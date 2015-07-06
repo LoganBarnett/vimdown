@@ -12,16 +12,6 @@ model.selectFile = (targetFile, files) => {
 
   return resultFiles;
   /*
-  FileBrowser.getFileData(selectedFileName).then((data) => {
-    text = data;
-    //reacting = true;
-    app.render();
-    //reacting = false;
-  }, (error) => {
-    console.error('error', error);
-    text = 'Error loading file "' + selectedFileName + '":' + error;
-    app.render();
-  });
   */
 };
 
