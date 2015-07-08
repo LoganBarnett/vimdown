@@ -4,10 +4,10 @@ const React = require('react');
 const MarkdownView = require('./markdown_view');
 const AceEditor = require('react-ace');
 const brace = require('brace');
+const FileBrowser = require('./file_browser');
 import FileSelection from './file_selection';
 import FileList from './file_list';
 import FileListLoadError from './file_list_load_error';
-import FileBrowser from './file_browser';
 import _ from 'lodash';
 import mori from 'mori';
 
@@ -15,10 +15,6 @@ require('brace/mode/markdown');
 brace.acequire('ace/mode/markdown');
 require('brace/keybinding/vim.js');
 brace.acequire('ace/keybinding/vim');
-
-let text = '';
-let reacting = false;
-let fileListError = false;
 
 const app = {
   getFileList: () => {
@@ -28,42 +24,46 @@ const app = {
           return mori.toClj({fileName: f, selected: false});
         }, fileList.data);
 
-        fileListError = false;
+        app.fileListError = false;
         app.render();
       }
       // TODO: Need to have errors on success handlers automatically reject...
       catch(e) {
         console.error('error getting files', e);
-        fileListError = true;
+        app.fileListError = true;
       }
     })
     .catch((error) => {
-      fileListError = true;
+      app.fileListError = true;
       app.fileListResults = error;
     });
+  }
+  , changeHash: (location, fileName) => {
+    location.hash = '#/' + fileName;
   }
   , selectFile: (applyUrl, fileName) => {
     app.fileListResults = FileSelection.selectFile(fileName, app.fileListResults);
 
     app.loadFile(fileName);
     if(applyUrl) {
-      window.location.hash = '#/' + fileName;
+      app.changeHash(window.location, fileName);
     }
   }
   , loadFile: (fileName) => {
     FileBrowser.getFileData(fileName).then((data) => {
-      text = data;
-      reacting = true;
+      app.text = data;
+      app.selectedFileName = fileName;
+      app.reacting = true;
       app.render();
-      reacting = false;
+      app.reacting = false;
     }, (error) => {
       console.error('error', error);
-      text = 'Error loading file "' + fileName + '":' + error;
+      app.text = 'Error loading file "' + fileName + '":' + error;
       app.render();
     });
   }
   , getFileListTag: function() {
-    return fileListError ? <FileListLoadError reason={app.fileListResults}/> : <FileList fileList={app.fileListResults} onSelect={mori.partial(this.selectFile, true)}/>;
+    return app.fileListError ? <FileListLoadError reason={app.fileListResults}/> : <FileList fileList={app.fileListResults} onSelect={mori.partial(this.selectFile, true)}/>;
   }
   , onLoad: (editor) => {
     // this one doesn't work
@@ -81,16 +81,20 @@ const app = {
     vim.map('k', 'gk');
   }
   , onChange: (newText) => {
-    if(!reacting) {
-      text = newText;
-      reacting = true;
+    if(!app.reacting) {
+      app.text = newText;
+      app.reacting = true;
+      FileBrowser.writeFile(app.selectedFileName, app.text);
       app.render();
-      reacting = false;
+      app.reacting = false;
     }
   }
   , route: (newUrl) => {
-    const fileName = newUrl.substring(newUrl.indexOf('#') + 2); // get past '#/'
-    app.selectFile(false, fileName);
+    const hashIndex = newUrl.indexOf('#');
+    if(hashIndex > -1) {
+      const fileName = newUrl.substring(hashIndex + 2); // get past '#/'
+      app.selectFile(false, fileName);
+    }
   }
   , render: () => {
     const fileListTag = app.getFileListTag();
@@ -114,13 +118,13 @@ const app = {
               <div className="inner-window col-sm-6 remove-horizontal-padding">
                 <div className="row">
                   <p className="col-sm-12 bg-primary window-title-bar">
-                    Editor
+                    Editor {app.selectedFileName}
                   </p>
                   <div className="text-editor">
                     <AceEditor
                       mode="markdown"
                       name="ace-editor"
-                      value={text}
+                      value={app.text}
                       onLoad={app.onLoad}
                       onChange={app.onChange}
                       width="100%"
@@ -134,7 +138,7 @@ const app = {
                     Markdown Preview
                   </p>
                   <div className="col-sm-12">
-                    <MarkdownView className={'panel'} markdown={text}/>
+                    <MarkdownView className="panel" markdown={app.text}/>
                   </div>
                 </div>
               </div>
@@ -146,6 +150,11 @@ const app = {
     );
   }
 };
+app.text = '';
+app.selectedFileName = 'No file selected';
+app.reacting = false;
+app.fileListError = false;
+
 app.fileListResults = [];
 app.getFileList();
 

@@ -11,5 +11,8 @@ const FileBrowser = {
       return response.data;
     });
   }
+  , writeFile: (fileName, data) => {
+    return axios.put('/api/v1/notes/' + fileName, {fileData: data}).then((response) => response.data);
+  }
 };
 module.exports = FileBrowser;

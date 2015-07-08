@@ -8,8 +8,8 @@ var router = express.Router();
 router.get('/', controller.index);
 router.get('/:fileName', controller.get);
 router.post('/', controller.create);
-router.put('/:file_name', controller.update);
-router.delete('/:file_name', controller.delete);
+router.put('/:fileName', controller.update);
+router.delete('/:fileName', controller.delete);
 
 module.exports = router;
 

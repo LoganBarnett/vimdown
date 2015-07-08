@@ -11,8 +11,6 @@ model.selectFile = (targetFile, files) => {
   const resultFiles = mori.map(mori.partial(setSelected, targetFile), files);
 
   return resultFiles;
-  /*
-  */
 };
 
 module.exports = model;

@@ -28,7 +28,7 @@ controller.get = function(req, res) {
 };
 
 controller.create = function(req, res) {
-  model.create(NOTE_DIR + '/' + req.query.fileName, req.body).then(function(result) {
+  model.create(NOTE_DIR + '/' + req.params.fileName, req.body).then(function(result) {
     res.json(result);
   }, function(error) {
     console.error(error);
@@ -38,8 +38,9 @@ controller.create = function(req, res) {
 };
 
 controller.update = function(req, res) {
-  model.update(NOTE_DIR + '/' + req.query.fileName, req.body).then(function(result) {
-    res.json(result);
+  const notePath = NOTE_DIR + '/' + req.params.fileName;
+  model.update(notePath, req.body.fileData).then(function(result) {
+    res.sendStatus(200);
   }, function(error) {
     console.error('error updating generation set model', error)
     res.sendStatus(500);
