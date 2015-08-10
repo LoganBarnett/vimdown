@@ -152,7 +152,7 @@ gulp.task('host:main', ['watch-server-test'], () => {
   nodemon({
       script: './server/app.js'
     , ext: 'html js'
-    , env: {'NODE_ENV': 'production'}
+    , env: {'NODE_ENV': 'development'}
     , stdout: false
     , stderr: false
     //, nodeArgs: ['--debug']

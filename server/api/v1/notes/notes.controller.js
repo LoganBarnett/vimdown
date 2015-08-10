@@ -4,7 +4,7 @@ var model = require('./notes.model');
 
 var controller = {};
 
-const NOTE_DIR = '/Users/logan/Dropbox/notes';
+const NOTE_DIR = require('../../../config/environment').notesDir;
 
 controller.index = function(req, res) {
   model.getList(NOTE_DIR).then(function(list) {

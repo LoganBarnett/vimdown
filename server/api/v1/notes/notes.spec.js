@@ -1,6 +1,7 @@
 'use strict';
 
-var model = require('./notes.model');
+const model = require('./notes.model');
+const childProcess = require('child_process');
 const fs = require('fs');
 const q = require('q');
 const _ = require('lodash');
@@ -35,21 +36,56 @@ describe('Notes', function() {
   describe('model', function() {
 
     it('gets a list of notes', function(done) {
-      spyOn(fs, 'readdir').and.callFake((dir, cb) => {
+      spyOn(childProcess, 'execFile').and.callFake((command, params, options, cb) => {
         const deferred = q.defer();
-        setTimeout(() => cb(null, ['foo', 'bar', 'bazz']), 0);
+        // find lists the base path itself
+        setTimeout(() => cb(null, 'unused\nfoo\nbar\nbazz'), 0);
         return deferred.promise;
       });
       model.getList('./dir').then((list) => {
         expect(list).toBeDefined();
         done();
       }, (error) => {
-        done.fail('Expected success getting files but got error instead', error);
+        done.fail('Expected success getting files but got error instead: ' + error);
+      });
+    });
+
+    it('truncates the base dir from the notes path', () => {
+      spyOn(childProcess, 'execFile').and.callFake((command, params, options, cb) => {
+        const deferred = q.defer();
+        // find lists the base path itself
+        setTimeout(() => cb(null, './dir\n./dir/foo\n./dir/bar\n./dir/bazz'), 0);
+        return deferred.promise;
+      });
+      model.getList('./dir').then((list) => {
+        expect(list[0]).toEqual('foo');
+        expect(list[1]).toEqual('bar');
+        expect(list[2]).toEqual('bazz');
+        done();
+      }, (error) => {
+        done.fail('Expected success getting files but got error instead: ' + error);
+      });
+    });
+
+    it('parses the list of files correctly', () => {
+      spyOn(childProcess, 'execFile').and.callFake((command, params, options, cb) => {
+        const deferred = q.defer();
+        // find lists the base path itself
+        setTimeout(() => cb(null, './dir\nfoo\nbar\nbazz'), 0);
+        return deferred.promise;
+      });
+      model.getList('./dir').then((list) => {
+        expect(list[0]).toEqual('foo');
+        expect(list[1]).toEqual('bar');
+        expect(list[2]).toEqual('bazz');
+        done();
+      }, (error) => {
+        done.fail('Expected success getting files but got error instead: ' + error);
       });
     });
 
     it('rejects getting notes on an error', (done) => {
-      spyOn(fs, 'readdir').and.callFake((dir, cb) => {
+      spyOn(childProcess, 'execFile').and.callFake((command, params, options, cb) => {
         const deferred = q.defer();
         setTimeout(() => cb('Dir does not exist', null), 0);
         return deferred.promise;
