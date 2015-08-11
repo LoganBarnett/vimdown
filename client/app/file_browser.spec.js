@@ -41,19 +41,27 @@ describe('FileBrowser', () => {
     });
 
     it('loads an individual file', (done) => {
-      spyOn(axios, 'get').and.callFake(() => {
-        const deferred = Q.defer();
-        setTimeout(() => deferred.resolve({data: '<foo></foo>'}));
-        return deferred.promise;
-      });
+      spyOn(axios, 'get').and.callFake(() => Q({data: '<foo></foo>'}));
 
       FileBrowser.getFileData('foo.xml').then((fileData) => {
         expect(fileData).toEqual('<foo></foo>');
         done();
       })
-        .catch((error) => {
-          done.fail('expected success getting file data but got failure instead', error);
-        });
+      .catch((error) => {
+        done.fail('expected success getting file data but got failure instead: ' + error);
+      });
+    });
+
+    it('loads file data from files in subdirectories', (done) => {
+      spyOn(axios, 'get').and.callFake(() => Q({data: '<foo></foo>'}));
+
+      FileBrowser.getFileData('bar/foo.xml').then(() => {
+        expect(axios.get).toHaveBeenCalledWith('/api/v1/notes/bar%2Ffoo.xml');
+        done();
+      })
+      .catch((error) => {
+        done.fail('expected success getting file data but got failure instead: ' + error);
+      });
     });
 
     it('handles errors loading individual files', (done) => {
@@ -84,6 +92,18 @@ describe('FileBrowser', () => {
       })
       .catch((error) => {
         done.fail('Expected success writing the file but got failure instead: ' + error);
+      });
+    });
+
+    it('writes files in subdirectories', (done) => {
+      spyOn(axios, 'put').and.callFake(() => Q({status: 200}));
+
+      FileBrowser.writeFile('bar/foo.xml', 'texty text text').then(() => {
+        expect(axios.put).toHaveBeenCalledWith('/api/v1/notes/bar%2Ffoo.xml', {fileData: 'texty text text'});
+        done();
+      })
+      .catch((error) => {
+        done.fail('expected success getting file data but got failure instead: ' + error);
       });
     });
 
