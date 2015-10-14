@@ -2,16 +2,14 @@
 
 const gulp = require('gulp');
 const concat = require('gulp-concat');
-const mainBowerFiles = require('main-bower-files');
-const sourcemaps = require('gulp-sourcemaps');
-const uglify = require('gulp-uglify');
-const babel = require('gulp-babel');
+//const sourcemaps = require('gulp-sourcemaps');
+//const uglify = require('gulp-uglify');
+//const babel = require('gulp-babel');
 const browserSync = require('browser-sync').create();
-const reload = browserSync.reload;
-const clean = require('gulp-clean');
+//const reload = browserSync.reload;
 const browserify = require('browserify');
 const source = require('vinyl-source-stream');
-const buffer = require('vinyl-buffer');
+//const buffer = require('vinyl-buffer');
 const babelify = require('babelify');
 const watchify = require('watchify');
 const _ = require('lodash');
@@ -21,12 +19,24 @@ const jasmine = require('gulp-jasmine');
 const notify = require('gulp-notify');
 const nodemon = require('nodemon');
 const sass = require('gulp-sass');
+const fs = require('fs');
+const del = require('del');
 
-//import mocha from 'gulp-mocha';
-//import babelRegister from 'babel-core/register';
+const getConfig = (existsFn) => {
+  if(existsFn()) {
+    return JSON.parse(fs.readFileSync('local.gulp.json', {encoding: 'utf-8'}));
+  }
+  else {
+    return defaultConfig;
+  }
+};
 
-const CLIENT_DEST = 'dist';
-const TEMP = '.tmp';
+const defaultConfig = {
+    clientBuildDir: 'dist'
+  , tempDir: '.tmp'
+};
+
+const config = getConfig(_.partial(fs.existsSync, './local.gulp.json'));
 
 const handleError = (task) => {
   return (err) => {
@@ -36,22 +46,22 @@ const handleError = (task) => {
   }
 };
 
-gulp.task('serve', ['host:main', 'styles', 'build-and-watch', 'copy-static', 'watch-client-test', 'styles:watch'], () => {
-  //require('./server/app');
-  //gulp.watch('server/')
-});
+gulp.task('serve', ['host:main', 'styles', 'build-and-watch', 'copy-static', 'watch-client-test', 'styles:watch']);
 
 gulp.task('watch-server-test', () => {
-  return gulp.watch('./server/**/*.spec.js', ['test:server']);
+  if(!fs.existsSync('./server/app.js')) {
+    gutil.log('No server script found. Refusing to watch server tests.');
+    return;
+  }
+  return gulp.watch('./server/**/*.js', ['test:server']);
 });
 
 gulp.task('watch-client-test', () => {
-  //gulp.watch('./client/app/**/*.jsx', () => {
-    karma.start({
+  // karma handles the watch part
+  karma.start({
       configFile:  __dirname + '/karma.conf.js'
-      , singleRun: false
-    });
-  //});
+    , singleRun: false
+  });
 });
 
 gulp.task('test:client', (done) => {
@@ -65,13 +75,14 @@ gulp.task('test:server', () => {
   return gulp.src('./server/**/*.spec.js')
     //.pipe(babel())
     .pipe(jasmine({includeStackTrace: true}))
-    //.pipe(mocha({compilers: {js: babelRegister}}))
+    .on('error', (error) => gutil.log('Error running server unit tests', error))
+  //.pipe(mocha({compilers: {js: babelRegister}}))
   ;
 });
 
 gulp.task('clean', () => {
-  return gulp.src(CLIENT_DEST, {read: false})
-    .pipe(clean()) // TODO: Use del instead -  no gulp-specific plugin
+  return gulp.src(config.clientBuildDir, {read: false})
+    .pipe(del())
   ;
 });
 
@@ -80,8 +91,9 @@ gulp.task('styles', () => {
     .pipe(sass({
         outputStyle: 'nested'
       , includePaths: ['./client/node_modules/bootstrap-sass/assets/stylesheets']
-    }).on('error', sass.logError))
-    .pipe(gulp.dest(CLIENT_DEST + '/css'))
+    })
+    .on('error', sass.logError))
+    .pipe(gulp.dest(config.clientBuildDir + '/css'))
   ;
 });
 
@@ -91,15 +103,15 @@ gulp.task('styles:watch', () => {
 
 gulp.task('copy-static', () => {
   return gulp.src(['client/index.html', 'client/assets/**/*', 'node_modules/babel-core/browser-polyfill.js'])
-    .pipe(gulp.dest(CLIENT_DEST))
-    //.pipe(reload({stream: true}))
+    .pipe(gulp.dest(config.clientBuildDir))
+  //.pipe(reload({stream: true}))
   ;
 });
 
 const buildJs = (watching) => {
   gutil.log('building... (watching=' + watching + ')');
   const browserifyOpts = {
-      entries: ['./client/app/app.jsx']
+      entries: ['./client/app/app.js']
     , extensions: ['.jsx', '.js']
     , debug: true
     // TODO: Add watch: true and keepAlive: true
@@ -125,18 +137,18 @@ const buildJs = (watching) => {
   return bundler
     .transform(babelify)
     .bundle()
-  //return gulp.src(['client/app/**/*.{js,es6}', '!**/*.spec.{js,es6}', TEMP + 'templates.js'])
-//    .dest(CLIENT_DEST + '/src') # don't think we need to copy for sourcemaps
+    //return gulp.src(['client/app/**/*.{js,es6}', '!**/*.spec.{js,es6}', config.tempDir + 'templates.js'])
+  //    .dest(config.clientBuildDir + '/src') # don't think we need to copy for sourcemaps
     .pipe(source('app.min.js'))
     //.pipe(buffer())
     //.pipe(sourcemaps.init({debug: true}))
     //.pipe(babel())
     //.pipe(concat('app.min.js'))
     //.pipe(uglify())
-    //.pipe(sourcemaps.write(CLIENT_DEST + '/js'))
-    .pipe(gulp.dest(CLIENT_DEST + '/js'))
+    //.pipe(sourcemaps.write(config.clientBuildDir + '/js'))
+    .pipe(gulp.dest(config.clientBuildDir + '/js'))
     //.pipe(reload({stream: true}))
-    ;
+  ;
 };
 
 gulp.task('build-once', _.partial(buildJs, false));
@@ -149,6 +161,11 @@ gulp.task('build', ['build-once', 'copy-static'], () => {
 
 
 gulp.task('host:main', ['watch-server-test'], () => {
+  if(!fs.existsSync('./server/app.js')) {
+    gutil.log('No server script found. Refusing to host server.');
+    return;
+  }
+
   nodemon({
       script: './server/app.js'
     , ext: 'html js'
@@ -175,7 +192,7 @@ gulp.task('host:main', ['watch-server-test'], () => {
     //  gutil.log('[server]', gutil.colors.green(message));
     //}
     //else {
-      handleError('[server]')(message);
+    handleError('[server]')(message);
     //}
   })
   ;
