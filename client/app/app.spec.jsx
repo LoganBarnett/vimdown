@@ -7,14 +7,14 @@ const FileBrowser = require('./file_browser');
 describe('vimdown', () => {
   describe('routing', () => {
     it('selects a file based on the URL provided', () => {
-      const app = require('./app');
+      const app = require('./app.jsx');
       spyOn(app, 'selectFile').and.stub();
       app.route('#/test-file.md');
       expect(app.selectFile).toHaveBeenCalledWith(false, 'test-file.md');
     });
 
     it('routes on hash changes to the URL', (done) => {
-      const app = require('./app');
+      const app = require('./app.jsx');
       spyOn(app, 'route').and.stub();
       window.location.hash = '#/test-file.md';
       // needs a timeout because the event needs time to propagate
@@ -30,7 +30,7 @@ describe('vimdown', () => {
     it('renders the file name in the editor');
 
     it('changes the URL hash when selecting a file', () => {
-      const app = require('./app');
+      const app = require('./app.jsx');
       const FileSelection = require('./file_selection');
       spyOn(FileSelection, 'selectFile').and.returnValue(['foo', 'bar']);
       spyOn(app, 'loadFile').and.stub();
@@ -41,7 +41,7 @@ describe('vimdown', () => {
     });
 
     it('stores the new results with the selection upon selecting a file', () => {
-      const app = require('./app');
+      const app = require('./app.jsx');
       const FileSelection = require('./file_selection');
       spyOn(FileSelection, 'selectFile').and.returnValue(['foo', 'bar']);
       spyOn(app, 'loadFile').and.stub();
@@ -50,7 +50,7 @@ describe('vimdown', () => {
     });
 
     it('loads files when they are selected', () => {
-      const app = require('./app');
+      const app = require('./app.jsx');
       const FileSelection = require('./file_selection');
       spyOn(FileSelection, 'selectFile').and.returnValue(['foo', 'bar']);
       spyOn(app, 'loadFile').and.stub();
@@ -64,7 +64,7 @@ describe('vimdown', () => {
     it('automatically saves files as they are edited', () => {
       const FileBrowser = require('./file_browser');
       spyOn(FileBrowser, 'writeFile');
-      const app = require('./app');
+      const app = require('./app.jsx');
       spyOn(app, 'render').and.stub();
       app.selectedFileName = 'bar.md';
 
@@ -77,7 +77,7 @@ describe('vimdown', () => {
       const q = require('q');
       const FileBrowser = require('./file_browser');
       spyOn(FileBrowser, 'writeFile').and.returnValue(Q.reject({status: 500, data: 'Error loading file'}));
-      const app = require('./app');
+      const app = require('./app.jsx');
       spyOn(app, 'render').and.stub();
       app.selectedFileName = 'error.md';
 

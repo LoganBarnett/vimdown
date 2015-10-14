@@ -1,12 +1,19 @@
 'use strict';
 
 import React from 'react';
-import marked from 'marked';
+
+const markdownRenderer = require('markdown-it')({
+  html: true,
+  linkify: true,
+  typographer: false,
+})
+  .use(require('markdown-it-checkbox'))
+;
 
 const MarkdownView = React.createClass({
   render: function() {
     //console.log('rendering markdown', this.props.markdown);
-    const markdown = marked(this.props.markdown || '');
+    const markdown = markdownRenderer.render(this.props.markdown || '');
     return (
       <div key="markdown-view" dangerouslySetInnerHTML={ {__html: markdown} }></div>
     );
