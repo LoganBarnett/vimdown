@@ -24,6 +24,14 @@ var all = {
 
   // where to find our notes
   , notesDir: expandTilde('~/notes')
+
+  // regular expressions - ignore on match
+  , blackList: [
+      '\\.git'
+    // not sure why escaped dot doesn't work here but works above
+    , '-slides/(plugin|css|package.json)'
+    //, '-slides/(plugin|package\\.json|LICENSE|lib|test|README|CONTRIBUTING|\\.travis\\.yml)'
+  ]
   // Should we populate the DB with sample data?
   //seedDB: false,
 

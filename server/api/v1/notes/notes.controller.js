@@ -4,11 +4,30 @@ var model = require('./notes.model');
 
 var controller = {};
 
-const NOTE_DIR = require('../../../config/environment').notesDir;
+const config = require('../../../config/environment');
+const notesDir = config.notesDir;
+const blackList = config.blackList;
+const NodeUtils = require('../../../node_utils');
+const fs = require('fs');
+const mori = require('mori');
+
+const execFile = require('child_process').execFile;
+const listFilesFn = (dir) => {
+  return NodeUtils.promisize(mori.partial(execFile, 'find', [dir, '-follow', '-type', 'f'], {})).then((stdout, stderr) => {
+    if(stderr) {
+      throw stderr
+    }
+    // skip the first file (.)
+    return mori.rest(stdout.split('\n'));
+  });
+};
+
+const getIgnoreList = () => {
+};
 
 controller.index = function(req, res) {
-  model.getList(NOTE_DIR).then(function(list) {
-    res.json(list);
+  listFilesFn(notesDir).then((list) => {
+    res.json(model.getList(notesDir, blackList, list));
   }, function(error) {
     console.error(error);
     res.sendStatus(500);
@@ -17,8 +36,8 @@ controller.index = function(req, res) {
 };
 
 controller.get = function(req, res) {
-  console.log('getting file data for ', NOTE_DIR + '/' + req.params.fileName);
-  model.getFileData(NOTE_DIR + '/' + req.params.fileName).then(function(fileData) {
+  console.log('getting file data for ', notesDir + '/' + req.params.fileName);
+  model.getFileData(notesDir + '/' + req.params.fileName).then(function(fileData) {
     res.json(fileData);
   }, function(error) {
     console.error(error);
@@ -28,7 +47,7 @@ controller.get = function(req, res) {
 };
 
 controller.create = function(req, res) {
-  model.create(NOTE_DIR + '/' + req.params.fileName, req.body).then(function(result) {
+  model.create(notesDir + '/' + req.params.fileName, req.body).then(function(result) {
     res.json(result);
   }, function(error) {
     console.error(error);
@@ -38,7 +57,7 @@ controller.create = function(req, res) {
 };
 
 controller.update = function(req, res) {
-  const notePath = NOTE_DIR + '/' + req.params.fileName;
+  const notePath = notesDir + '/' + req.params.fileName;
   model.update(notePath, req.body.fileData).then(function(result) {
     res.sendStatus(200);
   }, function(error) {
@@ -49,7 +68,7 @@ controller.update = function(req, res) {
 };
 
 controller.delete = function(req, res) {
-  model.delete(NOTE_DIR + '/' + req.query.fileName).then(function(result) {
+  model.delete(notesDir + '/' + req.query.fileName).then(function(result) {
     res.send(200);
   }, function(error) {
     console.error(error);

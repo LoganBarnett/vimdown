@@ -6,17 +6,17 @@ const mori = require('mori');
 //import mori from 'mori';
 //import NodeUtils from '../../../node_utils';
 const NodeUtils = require('../../../node_utils');
-const childProcess = require('child_process');
 
 var Model = {};
 
-Model.getList = function(dir) {
-  return NodeUtils.promisize(mori.partial(childProcess.execFile, 'find', [dir, '-follow', '-type', 'f'], {})).then((stdout, stderr) => {
-    if(stderr) {
-      throw stderr
-    }
-    return mori.toJs(mori.map((p) => p.replace(dir + '/', ''), mori.rest(stdout.split('\n')) ));
-  });
+const filterIgnored = (blackList, x) => {
+  return !mori.some((i) => x.match(i), blackList);
+};
+
+Model.getList = function(dir, ignoreList, files) {
+  const clippedFiles = mori.map((p) => p.replace(dir + '/', ''), files );
+  const filteredFiles = mori.filter(mori.partial(filterIgnored, ignoreList), clippedFiles);
+  return mori.toJs(filteredFiles);
 };
 
 Model.getFileData = (path) => {

@@ -35,68 +35,39 @@ const expectPromiseReject = (promise, done, expected) => {
 describe('Notes', function() {
   describe('model', function() {
 
-    it('gets a list of notes', function(done) {
-      spyOn(childProcess, 'execFile').and.callFake((command, params, options, cb) => {
-        const deferred = q.defer();
-        // find lists the base path itself
-        setTimeout(() => cb(null, 'unused\nfoo\nbar\nbazz'), 0);
-        return deferred.promise;
-      });
-      model.getList('./dir').then((list) => {
-        expect(list).toBeDefined();
-        done();
-      }, (error) => {
-        done.fail('Expected success getting files but got error instead: ' + error);
-      });
-    });
-
-    it('truncates the base dir from the notes path', () => {
-      spyOn(childProcess, 'execFile').and.callFake((command, params, options, cb) => {
-        const deferred = q.defer();
-        // find lists the base path itself
-        setTimeout(() => cb(null, './dir\n./dir/foo\n./dir/bar\n./dir/bazz'), 0);
-        return deferred.promise;
-      });
-      model.getList('./dir').then((list) => {
-        expect(list[0]).toEqual('foo');
-        expect(list[1]).toEqual('bar');
-        expect(list[2]).toEqual('bazz');
-        done();
-      }, (error) => {
-        done.fail('Expected success getting files but got error instead: ' + error);
-      });
-    });
-
-    it('parses the list of files correctly', () => {
-      spyOn(childProcess, 'execFile').and.callFake((command, params, options, cb) => {
-        const deferred = q.defer();
-        // find lists the base path itself
-        setTimeout(() => cb(null, './dir\nfoo\nbar\nbazz'), 0);
-        return deferred.promise;
-      });
-      model.getList('./dir').then((list) => {
-        expect(list[0]).toEqual('foo');
-        expect(list[1]).toEqual('bar');
-        expect(list[2]).toEqual('bazz');
-        done();
-      }, (error) => {
-        done.fail('Expected success getting files but got error instead: ' + error);
-      });
-    });
-
-    it('rejects getting notes on an error', (done) => {
-      spyOn(childProcess, 'execFile').and.callFake((command, params, options, cb) => {
-        const deferred = q.defer();
-        setTimeout(() => cb('Dir does not exist', null), 0);
-        return deferred.promise;
+    describe('listing', () => {
+      it('gets a list of notes', function() {
+        const files = ['foo', 'bar', 'bazz'];
+        const results = model.getList('./dir', [], files);
+        expect(results).toEqual(['foo', 'bar', 'bazz']);
       });
 
-      model.getList('./dir').then((list) => {
-        done.fail('Expected error getting files but got success instead', list);
-      }, (error) => {
-        expect(error).toEqual('Dir does not exist');
-        done();
-      })
+      it('ignores files in an ignore list', () => {
+        const ignoreList = ['.git'];
+        const files = ['.git', 'foo', 'bar', 'bazz'];
+        const results = model.getList('./dir', ignoreList, files);
+        expect(results).toEqual(['foo', 'bar', 'bazz']);
+      });
+
+      it('truncates the base dir from the notes path', () => {
+        const files = ['./dir/foo', './dir/bar', './dir/bazz'];
+        const results = model.getList('./dir', [], files);
+        expect(results).toEqual(['foo', 'bar', 'bazz']);
+      });
+
+        /*
+      it('rejects getting notes on an error', (done) => {
+        const asyncFn = q.reject('Dir does not exist');
+        model.getList('./dir', asyncFn).then((list) => {
+          const files = ['foo', 'bar', 'bazz'];
+          model.getList('./dir', [], files).then((list) => {
+          done.fail('Expected error getting files but got success instead', list);
+        }, (error) => {
+          expect(error).toEqual('Dir does not exist');
+          done();
+        })
+      });
+      */
     });
 
     it('gets data from a note', (done) => {
