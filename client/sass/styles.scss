@@ -19,6 +19,12 @@
 //  padding-left: 0;
 //}
 
+.note-list-title {
+  margin-bottom: 0;
+  background-color: #333333;
+  color: #ddd;
+}
+
 .window-title-bar {
   margin-bottom: 0;
 }
@@ -43,9 +49,18 @@
 }
 
 .vertical-window {
+  background-color: black;
   display: flex;
   //flex-flow: column;
   flex-direction: column;
   flex: 1;
   height: 100%;
+}
+
+h1 {
+}
+
+body {
+  color: #ccc;
+  background-color: black;
 }

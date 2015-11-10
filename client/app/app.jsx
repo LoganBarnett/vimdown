@@ -15,6 +15,12 @@ require('brace/mode/markdown');
 brace.acequire('ace/mode/markdown');
 require('brace/keybinding/vim.js');
 brace.acequire('ace/keybinding/vim');
+const themeName = 'clouds_midnight';
+require('brace/theme/monokai');
+require('brace/theme/twilight');
+require('brace/theme/github');
+require('brace/theme/clouds_midnight');
+brace.acequire('ace/theme/' + themeName);
 
 const app = {
   getFileList: () => {
@@ -71,6 +77,7 @@ const app = {
     // use this form instead
     editor.setOption('maxLines', Infinity);
     editor.setKeyboardHandler('ace/keyboard/vim');
+    editor.setTheme('ace/theme/' + themeName);
     // need to resize when getting new content or setting something like max-lines
     // TODO: Might need to have a resize get called when text changes
     editor.resize();
@@ -103,7 +110,7 @@ const app = {
         <div className="row">
           <div className="col-sm-2">
             <div className="row vertical-window">
-              <p className="col-sm-12 flex-window-title window-title-bar bg-info">
+              <p className="col-sm-12 flex-window-title note-list-title">
                 <strong>Notes</strong>
               </p>
               <div className="inner-window-scrolling-content">
